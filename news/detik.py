@@ -8,6 +8,7 @@ from typing import List
 from utils.type_hint import ArticleTtype
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from utils.constant import PAGE_LOAD_TIMEOUT
 from settings.decorator import retry 
 
 
@@ -54,31 +55,22 @@ class DetikNews(LoadSelenium):
         ]
         return pagination_link_list
 
+    @retry(exec_msg="Articles")
     def do_get_articles(self, pagination_list: List[str]) -> List[ArticleTtype]:
         article: List[ArticleTtype] = []
 
-        for page in pagination_list:
-            if page.lower() in ["prev", "next"]:
-                continue
+        for page_link in pagination_list:
+            # Navigate to next pagination link
+            self.list_article_link: List[str] = []
+            self.driver.get(page_link)
 
             # Get list of news
-            try:
-                content_container = self.driver.find_element(
-                    By.CSS_SELECTOR, ".list-content"
-                )
-                list_content = content_container.find_elements(
-                    By.CSS_SELECTOR, ".list-content__item"
-                )
-            except StaleElementReferenceException:
-                content_container = self.driver.find_element(
-                    By.CSS_SELECTOR, ".list-content"
-                )
-                list_content = content_container.find_elements(
-                    By.CSS_SELECTOR, ".list-content__item"
-                )
-
-            print("For current page:", page)
-            print("Total article: ", len(list_content))
+            content_container = self.driver.find_element(
+                By.CSS_SELECTOR, ".list-content"
+            )
+            list_content = content_container.find_elements(
+                By.CSS_SELECTOR, ".list-content__item"
+            )
 
             # Get all article link for each page
             for content in list_content:
@@ -93,7 +85,7 @@ class DetikNews(LoadSelenium):
             # Navigate to all articles link and scrap them
             for idx, title_link in enumerate(self.list_article_link):
 
-                self.driver.set_page_load_timeout(5)
+                self.driver.set_page_load_timeout(PAGE_LOAD_TIMEOUT)
 
                 try:
                     self.driver.get(title_link)
@@ -102,7 +94,9 @@ class DetikNews(LoadSelenium):
 
                 # Get the article title and body content
                 try:
-                    title = self.driver.find_element(By.CSS_SELECTOR, ".detail__title")
+                    title = WebDriverWait(self.driver, 10).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, ".detail__title"))
+                    )
                     body_container = self.driver.find_element(
                         By.CSS_SELECTOR, ".detail__body-text"
                     )
@@ -111,6 +105,8 @@ class DetikNews(LoadSelenium):
                     body_container = self.driver.find_element(
                         By.CSS_SELECTOR, ".detail__body"
                     )
+                except TimeoutException:
+                    continue
 
                 all_p = body_container.find_elements(By.TAG_NAME, "p")
                 all_p = [
@@ -136,6 +132,7 @@ class DetikNews(LoadSelenium):
 
                 self.driver.get(self.prev_url)
 
+        self.driver.close()
         return article
 
     def get_article_links(self) -> List[str]:
