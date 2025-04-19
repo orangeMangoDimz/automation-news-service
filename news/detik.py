@@ -2,11 +2,13 @@ from news import LoadSelenium
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import (
     TimeoutException,
-    StaleElementReferenceException,
     NoSuchElementException,
 )
 from typing import List
 from utils.type_hint import ArticleTtype
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from settings.decorator import retry 
 
 
 class DetikNews(LoadSelenium):
@@ -39,13 +41,18 @@ class DetikNews(LoadSelenium):
 
         self.prev_url = self.driver.current_url
 
-    def do_get_pagination_nums(self) -> List[str]:
-        # Get maximum 4 pages, include "Prev" or "Next"
+    def do_get_pagination_links(self) -> List[str]:
+        # Get maximum 2 pages, probably including "Prev" or "Next" btn
         pagination_container = self.driver.find_elements(
             By.CSS_SELECTOR, ".pagination > a[dtr-evt='search result']"
-        )[:4]
-        pagination_list: List[str] = [p.text for p in pagination_container]
-        return pagination_list
+        )[:2]
+        # Get all pagination links 
+        pagination_link_list: List[str] = [
+            href 
+            for p in pagination_container
+            if p.text.lower() not in ["prev", "next"] and (href := p.get_attribute("href"))
+        ]
+        return pagination_link_list
 
     def do_get_articles(self, pagination_list: List[str]) -> List[ArticleTtype]:
         article: List[ArticleTtype] = []
