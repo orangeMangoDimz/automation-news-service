@@ -32,7 +32,7 @@ class LoadSelenium:
         pass
 
     @retry(exec_msg="Pagination")
-    def do_get_pagination_nums(self, *args, **kwargs) -> any:  # type: ignore
+    def do_get_pagination_links(self, *args, **kwargs) -> any:  # type: ignore
         """
         Get pagination nums
         Ex: 1, 2, 3, etc

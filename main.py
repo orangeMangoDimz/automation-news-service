@@ -19,10 +19,9 @@ def do_scrap_news() -> Tuple[List[ArticleTtype], List[str]]:
     detik_news = DetikNews(keyword="prabowo")
     detik_news.do_search()
     detik_news.do_apply_filter()
-    pagination_number_list: List[str] = detik_news.do_get_pagination_nums()
-    articles: List[ArticleTtype] = detik_news.do_get_articles(pagination_number_list)
+    pagination_links_list: List[str] = detik_news.do_get_pagination_links()
+    articles: List[ArticleTtype] = detik_news.do_get_articles(pagination_links_list)
     article_links: List[str] = detik_news.get_article_links()
-
     return articles, article_links
 
 
@@ -34,7 +33,6 @@ def do_summarize(
     response: str = gemini_service.do_get_response(contents=instruction)
     response: str = add_bottom_line(response=response, article_link=article_links)
     return response
-
 
 if __name__ == "__main__":
     # Load config
