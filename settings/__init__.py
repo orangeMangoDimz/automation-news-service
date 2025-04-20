@@ -1,7 +1,7 @@
 from pathlib import Path
 from dotenv import load_dotenv
 from pydantic import ValidationError
-from utils.constant import API_KEY_NOT_FOUND
+from utils.constant import API_KEY_NOT_FOUND, DEBUG_MODE, ENV_NOT_COMPLETE
 from typing import List
 from utils.type_hint import EnvType
 import os
@@ -19,11 +19,23 @@ class LoadSettings:
                 "value": "",
                 "err_msg": API_KEY_NOT_FOUND,
             },
+            {
+                "key": "DEBUG_MODE",
+                "value": "",
+                "err_msg": DEBUG_MODE,
+            },
         ]
 
         for env in list_env:
-            value: str | None = os.getenv(env.get("key"))
-            if value is None:
+            key = env.get("key")
+            if key is None:
+                raise ValidationError(ENV_NOT_COMPLETE)
+
+            value: str | None = os.getenv(key)
+            if key == "DEBUG_MODE" and value is None:
+                value = "True"
+                print(env.get("err_msg"))
+            elif value is None:
                 raise ValidationError(env.get("err_msg"))
             env["value"] = value
 
