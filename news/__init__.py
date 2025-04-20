@@ -1,9 +1,16 @@
 from selenium import webdriver
+from mixin.LoggerMixin import LoggerMixin
 from settings.decorator import retry
+from settings import LoadSettings
+from typing import List
+from utils.type_hint import EnvType
 
 
 class LoadSelenium:
+class LoadSelenium(LoggerMixin):
     def __init__(self) -> None:
+        super().__init_logger__()
+
         # Load base config
         chrome_options = webdriver.ChromeOptions()
         prefs = {"profile.managed_default_content_settings.images": 2}
