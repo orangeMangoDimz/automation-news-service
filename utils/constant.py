@@ -11,6 +11,9 @@ No_NEWS_YET = "Belum ada berita untuk sekarang"
 # Timeout
 PAGE_LOAD_TIMEOUT = 5
 
+# Pagination
+PAGINATION_LINK_LIMIT = 2
+
 # Other
 DEBUG_MODE = "Your are not setitng debug status! It will set TRUE automaticly!"
 ENV_NOT_COMPLETE = "ENV are not fully set! Please refer to the .env.example"

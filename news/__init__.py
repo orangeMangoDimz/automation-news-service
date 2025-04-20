@@ -6,7 +6,6 @@ from typing import List
 from utils.type_hint import EnvType
 
 
-class LoadSelenium:
 class LoadSelenium(LoggerMixin):
     def __init__(self) -> None:
         super().__init_logger__()
@@ -15,14 +14,32 @@ class LoadSelenium(LoggerMixin):
         chrome_options = webdriver.ChromeOptions()
         prefs = {"profile.managed_default_content_settings.images": 2}
         chrome_options.add_experimental_option("prefs", prefs)
-        chrome_options.add_argument("--disable-extensions")
-        chrome_options.add_argument("--disable-popup-blocking")
-        chrome_options.add_argument("--disable-notifications")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        # chrome_options.add_argument("--no-sandbox")
-        # chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--disable-css")
-        # chrome_options.add_argument("--disable-javascript")
+
+        list_env: List[EnvType] = LoadSettings.get_env()
+        debug_mode: str = next(
+            env.get("value") for env in list_env if env.get("key") == "DEBUG_MODE"
+        )
+
+        required_args: List[str] = [
+            "--blink-settings=imagesEnabled=false",
+            "--disable-extensions",
+            "--disable-popup-blocking",
+            "--disable-notifications",
+            "--disable-dev-shm-usage",
+            "--no-sandbox",
+            "--disable-css",
+        ]
+
+        # Load all selenium args
+        for args in required_args:
+            chrome_options.add_argument(args)
+
+        # Ensure the DEBUG mode
+        if debug_mode.lower() == "false":
+            print("You are using headless mode")
+            chrome_options.add_argument("--headless")
+
+        self.is_debug_mode = debug_mode.lower() == "true"
         self.driver = webdriver.Chrome(chrome_options)
 
     def do_search(self) -> None:
