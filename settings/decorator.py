@@ -1,4 +1,4 @@
-from time import time, sleep
+from time import sleep
 
 
 def retry(max_attempt: int = 5, delay: int = 3, exec_msg: str = "Function"):
@@ -6,13 +6,11 @@ def retry(max_attempt: int = 5, delay: int = 3, exec_msg: str = "Function"):
         def wrapper(*args, **kwargs):
             for attempt in range(max_attempt):
                 try:
-                    now = time()
-                    func(*args, **kwargs)
-                    return print(f"{exec_msg} takes ", time() - now)
+                    return func(*args, **kwargs)
                 except Exception as e:
-                    print(f"Attempt Failed #{attempt}")
+                    print(f"{exec_msg} Attempt Failed #{attempt + 1}")
                     print(f"Traceback: {e}")
-                    print("Retry ...")
+                    print(f"Retrying ({attempt + 1}/{max_attempt})...")
                     sleep(delay)
             raise RuntimeError(f"Max retries ({max_attempt}) exceeded.")
 
