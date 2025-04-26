@@ -58,7 +58,7 @@ jobs:
           
           # Create virtualenv if not exists
           if [ ! -d "${{ env.VENV_NAME }}" ]; then
-            python -m venv ${{ env.VENV_NAME }}
+            python3 -m venv ${{ env.VENV_NAME }}
           fi
           
           # Activate virtualenv
