@@ -45,6 +45,14 @@ jobs:
         username: ${{ secrets.SERVER_USERNAME }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
+         # Clone or update the repository
+          if [ ! -d "${{ env.APP_DIR }}" ]; then
+            git clone https://github.com/${{ github.repository }}.git ${{ env.APP_DIR }}
+          else
+            cd ${{ env.APP_DIR }}
+            git pull origin main
+          fi
+          
           # Navigate to app directory
           cd ${{ env.APP_DIR }}
           
@@ -56,12 +64,9 @@ jobs:
           # Activate virtualenv
           source ${{ env.VENV_NAME }}/bin/activate
           
-          # Sync files from GitHub to server (excluding .git, venv, etc.)
-          rsync -avz --delete --exclude='.git/' --exclude='__pycache__/' --exclude='${{ env.VENV_NAME }}/' $GITHUB_WORKSPACE/ ${{ env.APP_DIR }}/
-          
           # Install dependencies
           pip install --upgrade pip
           pip install -r requirements.txt
           
-          # Restart Gunicorn service
+          # Restart service
           sudo systemctl restart ${{ env.SERVICE_NAME }}
