@@ -29,19 +29,13 @@ def add_top_line(response: str, news_base_url: str, news_title: str) -> str:
     day_name_id = LIST_OF_DAYS.get(day_name_eng, day_name_eng)
     month_name_id = LIST_OF_MONTHS.get(month_name_eng, month_name_eng)
 
-    final_date = f"{day_name_id}, {day} {month_name_id} {year}"
+    final_date = f"**{day_name_id}, {day} {month_name_id} {year}**"
 
     # Get source
-    source: str = f"Source [{news_title}]({news_base_url})"
+    source: str = f"**Source** [{news_title}]({news_base_url})"
 
     # Constructed response
-    formatted_response: str = f"""
-    {final_date}\n
-    {source}\n\n
-
-    ### Berita penting hari ini\b
-    {response}
-    """
+    formatted_response: str = f"{final_date}\n{source}\n\n### Berita penting hari ini\n\n{response}"
     return formatted_response
 
 
@@ -49,6 +43,6 @@ def add_bottom_line(response: str, article_link: List[str]) -> str:
     response += "\n\nReferensi:\n"
 
     for link in article_link:
-        response += f"link: {link}\n"
+        response += f"**Link**: {link}\n"
 
     return response.strip()
