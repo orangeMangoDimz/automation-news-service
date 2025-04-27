@@ -1,4 +1,4 @@
-from news import LoadSelenium
+from app import LoadSelenium
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import (
     TimeoutException,
@@ -19,6 +19,16 @@ class DetikNews(LoadSelenium):
         self.url: str = self._get_url(keyword)
         self.prev_url = self.url
         self.list_article_link: List[str] = []
+
+    # TODO: make this dynamic
+    @property
+    def get_domain_url(self) -> str:
+        return "https://www.detik.com"
+
+    # TODO: make this dynamic
+    @property
+    def get_base_title(self) -> str:
+        return "Detik"
 
     def _get_url(self, keyword: str):
         # Base URL for non debug mode

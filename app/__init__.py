@@ -42,6 +42,20 @@ class LoadSelenium(LoggerMixin):
         self.is_debug_mode = debug_mode.lower() == "true"
         self.driver = webdriver.Chrome(chrome_options)
 
+    @property
+    def get_domain_url(self) -> str:
+        """
+        Media url
+        """
+        return "Implement the url here"
+
+    @property
+    def get_base_title(self) -> str:
+        """
+        Media title
+        """
+        return "Implement the title here"
+
     def do_search(self) -> None:
         """
         Search for content here
