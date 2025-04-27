@@ -4,7 +4,6 @@ SUMMARIZE_INSTRUCTION = """
 - Ringkas artikel di atas menjadi point-point penting saja
 - Langsung gunakan format di bawah ini
 - Jangan tambahkan apapun di luar format di bawah
-- Limit untuk 3 artikel
 
 [Format]
 - [Judul point]
