@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from typing import List, Tuple
+from typing import List
+from app.detik import DetikNews
 from utils.type_hint import ArticleTtype
 from fastapi.responses import JSONResponse
 from utils.constant import No_NEWS_YET
@@ -7,26 +8,36 @@ import main as M
 
 app: FastAPI = FastAPI()
 
+
 @app.get("/get-today-news")
 def index():
+    # Load config
     gemini_api_key: str = M.get_gemini_api_key()
 
     # Do Scraping
-    data: Tuple[List[ArticleTtype], List[str]] = M.do_scrap_news()
-    articles: List[ArticleTtype] = data[0]
-    article_links: List[str] = data[1]
+    detik_news = DetikNews(keyword="prabowo")
+    articles: List[ArticleTtype] = M.do_scrap_news(news_app=detik_news)
+    article_links: List[str] = detik_news.get_article_links()
 
-    # Summarize
-    response: str = (
-        M.do_summarize(
-            gemini_api_key=gemini_api_key,
-            articles=articles,
-            article_links=article_links,
+    if len(article_links) == 0 or len(articles) == 0:
+        constructed_response: str = No_NEWS_YET
+
+    else:
+        # Summarize
+        summarize_response: str = M.do_summarize(
+            gemini_api_key=gemini_api_key, articles=articles
         )
-        if articles is not None and article_links is not None
-        else No_NEWS_YET
+
+        # Construct response
+        constructed_response: str = M.construct_response(
+            summarize_response=summarize_response,
+            news_app=detik_news,
+            article_links=article_links,
     )
 
-    return JSONResponse({
-        'data': response
-    })
+    return JSONResponse({"data": constructed_response})
+
+
+@app.get("/get-profile")
+def profile():
+    return JSONResponse({"data": M.get_profile()})
