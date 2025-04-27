@@ -60,3 +60,16 @@ ENV_NOT_COMPLETE = "ENV are not fully set! Please refer to the .env.example"
 AUTHOR_PROFILE = "https://github.com/orangeMangoDimz"
 DISCORD_BOT_REPO = "https://github.com/orangeMangoDimz/mango-bot"
 BACKEND_REPO = "https://github.com/orangeMangoDimz/automation-news-service"
+TEMPLATE_PROFILE = f"""
+### Profile
+Hi, I'm mangoBot!
+I'm still in beta version!
+If you found any bug, please report to the owner!
+### Basic Information
+- **Author**: [orangeMangoDimz]({AUTHOR_PROFILE})
+### Support
+- Please give the repo star to support this bot 😊
+## Links
+- [Discord Bot]({DISCORD_BOT_REPO})
+- [Server Repo]({BACKEND_REPO})
+"""
