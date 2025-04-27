@@ -37,7 +37,7 @@ def construct_response(
 ) -> str:
     response: str = add_top_line(
         response=summarize_response,
-        news_base_url=news_app.get_base_title,
+        news_base_url=news_app.get_domain_url,
         news_title=news_app.get_base_title,
     )
     constructed_response: str = add_bottom_line(
