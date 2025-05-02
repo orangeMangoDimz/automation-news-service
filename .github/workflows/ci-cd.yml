@@ -131,7 +131,7 @@ jobs:
           pip install -r requirements.txt
           
           # Check if service exists before restarting
-          if systemctl list-unit-files | grep -q "${{ env.STAGING_SERVICE_NAME }}.service"; then
+          if systemctl list-unit-files | grep -q "${{ env.STAGING_SERVICE_NAME }}"; then
             echo "🔄 Restarting staging service..."
             sudo systemctl restart ${{ env.STAGING_SERVICE_NAME }}
           else
