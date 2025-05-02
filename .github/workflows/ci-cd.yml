@@ -11,7 +11,7 @@ env:
   VENV_NAME: ${{ vars.VENV_NAME }}
   STAGING_VENV_NAME: ${{ vars.VENV_NAME }}-staging
   SERVICE_NAME: ${{ vars.SERVICE_NAME }}
-  STAGING_SERVICE_NAME: ${{ vars.SERVICE_NAME }}-staging
+  STAGING_SERVICE_NAME: ${{ vars.STAGING_SERVICE_NAME }}
 
 jobs:
   test:
