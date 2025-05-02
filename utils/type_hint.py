@@ -11,3 +11,8 @@ class EnvType(TypedDict):
     key: str
     value: str
     err_msg: str
+
+class HolidayResponse(TypedDict):
+    holiday_date: str
+    holiday_name: str
+    is_national_holiday: bool
