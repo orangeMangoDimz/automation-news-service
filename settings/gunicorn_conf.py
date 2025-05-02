@@ -1,7 +1,8 @@
 import multiprocessing
+import os
 
 # Server Socket
-bind = "0.0.0.0:8000"  # Listen on all network interfaces
+bind = f"0.0.0.0:{os.getenv('GUNICORN_PORT', '8000')}" 
 workers = multiprocessing.cpu_count() * 2 + 1  # Optimal worker count
 worker_class = "uvicorn.workers.UvicornWorker"  # Use Uvicorn's async workers
 timeout = 120  # Kill workers after 120 seconds of inactivity
