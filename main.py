@@ -1,9 +1,10 @@
-from typing import List
+from typing import List, Dict
 from app import LoadSelenium
 from app.detik import DetikNews
 from app.profile import ProfileApp
+from app.holiday_calendar import HolidayCalendarApp
 from utils import add_top_line, add_bottom_line, format_article
-from utils.type_hint import ArticleTtype, EnvType
+from utils.type_hint import ArticleTtype, EnvType, HolidayResponse
 from service.gemini import GeminiService
 from settings import LoadSettings
 
@@ -45,6 +46,11 @@ def construct_response(
     )
     return constructed_response
 
+def get_today_month_holiday(month: int) -> str:
+    holiday_calendar: HolidayCalendarApp = HolidayCalendarApp(month=month)
+    calendar_data: List[HolidayResponse] = holiday_calendar.fetch_month_holiday()
+    filtered_calendar_data: Dict[str, List[HolidayResponse]] = holiday_calendar.get_month_holiday(list_of_calendar_data=calendar_data)
+    return holiday_calendar.construct_response(list_of_holidays=filtered_calendar_data)
 
 def get_profile() -> str:
     return ProfileApp.get_profile()

@@ -41,3 +41,7 @@ def index():
 @app.get("/get-profile")
 def profile():
     return JSONResponse({"data": M.get_profile()})
+
+@app.get("/get-today-month-holiday")
+def month_holiday():
+    return JSONResponse({"data": M.get_today_month_holiday(month=8)})
