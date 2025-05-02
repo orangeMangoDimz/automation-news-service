@@ -2,18 +2,20 @@ name: Python CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, staging ]
 
 env:
   PYTHON_VERSION: '3.12.3'
   APP_DIR: ${{ vars.APP_DIR }}
+  STAGING_APP_DIR: ${{ vars.APP_DIR }}-staging
   VENV_NAME: ${{ vars.VENV_NAME }}
+  STAGING_VENV_NAME: ${{ vars.VENV_NAME }}-staging
   SERVICE_NAME: ${{ vars.SERVICE_NAME }}
+  STAGING_SERVICE_NAME: ${{ vars.SERVICE_NAME }}-staging
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     
@@ -27,7 +29,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
-  deploy:
+  deploy-production:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -38,19 +40,23 @@ jobs:
     - name: Install rsync (for file transfer)
       run: sudo apt-get update && sudo apt-get install -y rsync
     
-    - name: Deploy via SSH
+    - name: Deploy to Production
       uses: appleboy/ssh-action@v1
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USERNAME }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-         # Clone or update the repository
+          set -euo pipefail
+          echo "🚀 Starting Python PRODUCTION deployment..."
+          
+          # Clone or update the repository
           if [ ! -d "${{ env.APP_DIR }}" ]; then
             git clone https://github.com/${{ github.repository }}.git ${{ env.APP_DIR }}
           else
             cd ${{ env.APP_DIR }}
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
           fi
           
           # Navigate to app directory
@@ -68,5 +74,69 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
           
-          # Restart service
-          sudo systemctl restart ${{ env.SERVICE_NAME }}
+          # Check if service exists before restarting
+          if systemctl list-unit-files | grep -q "${{ env.SERVICE_NAME }}.service"; then
+            echo "🔄 Restarting production service..."
+            sudo systemctl restart ${{ env.SERVICE_NAME }}
+          else
+            echo "❌ Production service not found: ${{ env.SERVICE_NAME }}"
+            exit 1
+          fi
+          
+          echo "✅ PRODUCTION deployment successful!"
+
+  deploy-staging:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install rsync (for file transfer)
+      run: sudo apt-get update && sudo apt-get install -y rsync
+    
+    - name: Deploy to Staging
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          set -euo pipefail
+          echo "🚀 Starting Python STAGING deployment..."
+          
+          # Clone or update the repository
+          if [ ! -d "${{ env.STAGING_APP_DIR }}" ]; then
+            git clone https://github.com/${{ github.repository }}.git ${{ env.STAGING_APP_DIR }}
+          else
+            cd ${{ env.STAGING_APP_DIR }}
+            git fetch origin staging
+            git reset --hard origin/staging
+          fi
+          
+          # Navigate to app directory
+          cd ${{ env.STAGING_APP_DIR }}
+          
+          # Create virtualenv if not exists
+          if [ ! -d "${{ env.STAGING_VENV_NAME }}" ]; then
+            python3 -m venv ${{ env.STAGING_VENV_NAME }}
+          fi
+          
+          # Activate virtualenv
+          source ${{ env.STAGING_VENV_NAME }}/bin/activate
+          
+          # Install dependencies
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          
+          # Check if service exists before restarting
+          if systemctl list-unit-files | grep -q "${{ env.STAGING_SERVICE_NAME }}.service"; then
+            echo "🔄 Restarting staging service..."
+            sudo systemctl restart ${{ env.STAGING_SERVICE_NAME }}
+          else
+            echo "❌ Staging service not found: ${{ env.STAGING_SERVICE_NAME }}"
+            exit 1
+          fi
+          
+          echo "✅ STAGING deployment successful!"
