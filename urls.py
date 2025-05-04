@@ -1,5 +1,7 @@
+from datetime import datetime
 from fastapi import FastAPI
 from typing import List
+
 from app.detik import DetikNews
 from utils.type_hint import ArticleTtype
 from fastapi.responses import JSONResponse
@@ -33,7 +35,7 @@ def index():
             summarize_response=summarize_response,
             news_app=detik_news,
             article_links=article_links,
-    )
+        )
 
     return JSONResponse({"data": constructed_response})
 
@@ -41,3 +43,19 @@ def index():
 @app.get("/get-profile")
 def profile():
     return JSONResponse({"data": M.get_profile()})
+
+
+@app.get("/get-today-month-holiday")
+def month_holiday():
+    # TODO: make the month dynamic
+    today_month: int = datetime.now().date().month
+    return JSONResponse({"data": M.get_today_month_holiday(month=today_month)})
+
+@app.get("/get-today-words")
+def get_todays_word():
+    # TODO: make the month dynamic
+    # Load config
+    gemini_api_key: str = M.get_gemini_api_key()
+    response: str =  M.get_todays_word(gemini_api_key=gemini_api_key)
+    constructed_response: str = M.construct_todays_word_response(response=response)
+    return JSONResponse({"data": constructed_response})
