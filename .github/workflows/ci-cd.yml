@@ -75,7 +75,7 @@ jobs:
           pip install -r requirements.txt
           
           # Check if service exists before restarting
-          if systemctl list-unit-files | grep -q "${{ env.SERVICE_NAME }}.service"; then
+          if systemctl list-unit-files | grep -q "^${{ env.SERVICE_NAME }}"; then
             echo "🔄 Restarting production service..."
             sudo systemctl restart ${{ env.SERVICE_NAME }}
           else
