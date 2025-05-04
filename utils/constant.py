@@ -13,6 +13,14 @@ SUMMARIZE_INSTRUCTION = """
     dan seterusnya ...
 """
 
+# Monday motivation
+TODAY_WORD_CONTENT = "Berikan kata-kata untuk hari ini"
+TODAY_WORD_INSTRUCTION = """
+[Aturan]
+- Berikan 1 kalimat saja
+- Langsung berikan isi kalimatnya Isi kalimat harus bisa memberikan semangat dan motivasi
+"""
+
 # Date
 LIST_OF_DAYS = {
     "Monday": "Senin",
@@ -21,7 +29,7 @@ LIST_OF_DAYS = {
     "Thursday": "Kamis",
     "Friday": "Jumat",
     "Saturday": "Sabtu",
-    "Sunday": "Minggu"
+    "Sunday": "Minggu",
 }
 
 LIST_OF_MONTHS = {
@@ -36,7 +44,7 @@ LIST_OF_MONTHS = {
     "September": "September",
     "October": "Oktober",
     "November": "November",
-    "December": "Desember"
+    "December": "Desember",
 }
 
 # Gemini
