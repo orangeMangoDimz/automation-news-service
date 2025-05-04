@@ -1,9 +1,11 @@
+from datetime import datetime
 from typing import List, Dict
 from app import LoadSelenium
 from app.detik import DetikNews
 from app.profile import ProfileApp
 from app.holiday_calendar import HolidayCalendarApp
 from utils import add_top_line, add_bottom_line, format_article
+from utils.constant import LIST_OF_DAYS, LIST_OF_MONTHS, SUMMARIZE_INSTRUCTION, TODAY_WORD_CONTENT, TODAY_WORD_INSTRUCTION
 from utils.type_hint import ArticleTtype, EnvType, HolidayResponse
 from service.gemini import GeminiService
 from settings import LoadSettings
@@ -29,7 +31,7 @@ def do_scrap_news(news_app: LoadSelenium) -> List[ArticleTtype]:
 def do_summarize(gemini_api_key: str, articles: List[ArticleTtype]) -> str:
     gemini_service: GeminiService = GeminiService(api_key=gemini_api_key)
     instruction: str = format_article(articles)
-    response: str = gemini_service.do_get_response(contents=instruction)
+    response: str = gemini_service.do_get_response(contents=instruction, instruction=SUMMARIZE_INSTRUCTION)
     return response
 
 
@@ -49,11 +51,26 @@ def construct_response(
 def get_today_month_holiday(month: int) -> str:
     holiday_calendar: HolidayCalendarApp = HolidayCalendarApp(month=month)
     calendar_data: List[HolidayResponse] = holiday_calendar.fetch_month_holiday()
-    filtered_calendar_data: Dict[str, List[HolidayResponse]] = holiday_calendar.get_month_holiday(list_of_calendar_data=calendar_data)
+    filtered_calendar_data: Dict[str, List[HolidayResponse]] = (
+        holiday_calendar.get_month_holiday(list_of_calendar_data=calendar_data)
+    )
     return holiday_calendar.construct_response(list_of_holidays=filtered_calendar_data)
+
 
 def get_profile() -> str:
     return ProfileApp.get_profile()
+
+def get_todays_word(gemini_api_key: str):
+    gemini_service: GeminiService = GeminiService(api_key=gemini_api_key)
+    response: str = gemini_service.do_get_response(contents=TODAY_WORD_CONTENT, instruction=TODAY_WORD_INSTRUCTION)
+    return response
+
+def construct_todays_word_response(response: str) -> str:
+    formatted_date = datetime.now().strftime('%d %B %Y')
+    today_day_name = datetime.now().strftime('%A')
+    day_indo: str = LIST_OF_DAYS.get(today_day_name, today_day_name)
+    constructed_response: str = f"**{day_indo}, {formatted_date}**\nKata-kata hari ini:\n{response}"
+    return constructed_response
 
 
 if __name__ == "__main__":
